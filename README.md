@@ -20,6 +20,10 @@ Starting v0.11 I implemented ControlP5 Library. So in order to run this project 
 Usage
 -----
 
+Use the sliders on the top left corner for manipulation.
+
+The below is **obsolete** starting v0.11:
+
     'p': Increase the number of points used in the TriangloPod
     'l': Decrease the number of points used in the TriangloPod
     'o': Increase the outer radius
