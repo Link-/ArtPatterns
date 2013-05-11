@@ -8,6 +8,15 @@ Basically this project is written for Processing, however it's 100% portable to 
 
 No setup is needed. Just run the code in processing and you'll be good to go.
 
-== Tips == 
-====
+Btw, TriangloPod: I have no idea why I came up with that name or from where...
+
+Usage
+=====
+
+    'p': Increase the number of points used in the TriangloPod
+    'l': Decrease the number of points used in the TriangloPod
+    'o': Increase the outer radius
+    'k': Decrease the outer radius
+    'i': Increase the inner radius
+    'j': Decrease the inner radius
 
