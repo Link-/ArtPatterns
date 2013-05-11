@@ -10,26 +10,30 @@
  * 
  * @author: 	Bassem Dghaidy
  * @website: 	http://bassemdy.com
- * @version:	0.02
+ * @version:	0.10
  * @license:	...
  */
 
 /**
- * The entierty of the code is not commented
- * but it will be done later.
+ * The entierty of the code is dirty and not 
+ * commented. But it will be done later. (promise)
  */
 
 // ArrayList containing TriangloPods 
 // for the animation
 ArrayList trList;
 
-int incP = 0;
+// Noise timer
+float timeVar       = 0.0;
 
-float time       = 0.0;
-float time2      = 0.0;
-float increment  = 0.008;
-float increment2 = 0.009;
+// Controlling variables
+float keyPoints		= 0.0;
+float outerMulti	= 0.8;
+float innerMulti	= 0.4;
 
+//////////////////
+// Setup Method //
+//////////////////
 void setup()
 {
 	// Initial Configuration
@@ -45,10 +49,15 @@ void setup()
 	trList = new ArrayList();
 	for (int i = 0; i < 10; i++)
 	{
-		trList.add(new TriangloPod(width/2, height/2, i*5, 0.5, 0.4));
+		// x, y, angle position, points, outer radius, inner radius
+		// middle, middle, shift angle by a certain variable, points, initial vars
+		trList.add(new TriangloPod(width/2, height/2, i*5, 4, 0.5, 0.5));
 	}
 }
 
+////////////////
+// Main Loop  //
+////////////////
 void draw() 
 {
 	// Always reset the background
@@ -60,71 +69,155 @@ void draw()
 	strokeWeight(1);
 	noFill();
 
-	float n  = noise(time);
-	float na = noise(time2);
-	
-	// With each cycle, increment the " time "
-	time     += increment;
-	time2    += increment2;
+	// Drawing proceedure
+	float n  		= noise(timeVar);
 
+	float tmpAngle 	= map(n, 0, 1, 0, 180);
+	float tmpOR		= map(n, 0, 1, 0.5, 0.8);
+	float tmpIR		= map(n, 0, 1, 0.5, 0.8);
+	float tmpPts	= map(n, 0, 1, 1, 50);
+
+	// println(tmpOR);
 
 	// Update each element of the Trianglopods list
 	for (int i = 0; i < trList.size(); i++)
 	{
 		TriangloPod xP = (TriangloPod) trList.get(i);
-		xP.update(1.2*i/10, 1, pow(na*10, 3));
-		xP.incPoints(incP);
+		xP.setAngle(tmpAngle * i / 10);
+		xP.setOuterRad(tmpOR * outerMulti);
+		xP.setInnerRad(tmpIR * innerMulti, false);
+
+		// Extra control
+		if (keyPoints > 0.0)
+			xP.setPoints(keyPoints);
+
+		xP.update();
+	}
+
+	timeVar += 0.005;
+}
+
+
+////////////////////
+// Keyboard Input //
+////////////////////
+void keyPressed()
+{
+	switch(key)
+	{
+		// Increase the number of points
+		case 'p':
+			if (keyPoints < 50)
+				keyPoints++;
+		break;
+
+		// Decrease points
+		case 'l':
+			if (keyPoints > 0)
+				keyPoints--;
+		break;
+
+		case 'o':
+			outerMulti += 0.01;
+		break;
+
+		case 'k':
+			outerMulti -= 0.01;
+		break;
+
+		case 'i':
+			innerMulti += 0.01;
+		break;
+
+		case 'j':
+			innerMulti -= 0.01;
+		break;
 	}
 }
 
-void mouseClicked()
-{
-	incP++;
-	println(incP);
-}
 
-/**
- * TriangloPod Class
- * 
- */
-
+///////////////////////
+// TriangloPod Class //
+///////////////////////
 class TriangloPod
 {
 	int x, y;									// Coordinates
-	float outerRadius = min(width, height);		// Outer Radius Value
-	float innerRadius = outerRadius;			// Inner Radius Value
-	float pts         = 1;						// Number of points for the shape
+	float outerRadius = 0;						// Outer Radius Value
+	float innerRadius = 0;						// Inner Radius Value
+	float pts         = 0;						// Number of points for the shape
 	float angle       = 0;						// Angle of rotation
-	float rot 		  = 180.0/pts;				// Incremental rotation for each shape
+	float rot 		  = 0;						// Incremental rotation for each shape
 
-	// Constructor
-	TriangloPod(int posX, int posY, float angPos, float outR, float innerR)
+	//////////////////
+	// Constructor //
+	//////////////////
+	TriangloPod(int posX, int posY, float angPos, float points, float outR, float innerR)
 	{
 		x           = posX;
 		y           = posY;
 		angle       = angPos;
-		outerRadius = outerRadius * outR;
+		outerRadius = min(width, height) * outR;
 		innerRadius = outerRadius * innerR;
+		pts 		= points;
+		rot 		= 180.0/pts;
 	}
 
-	void incPoints(int value)
+	/////////////////////
+	// Setter Methods //
+	/////////////////////
+	
+	// Sets the points of each component of the trianglopod
+	public void setPoints(float newVal)
 	{
-		if (value > pts)
-			pts += value;
-		println(pts);
+		if (newVal != pts)
+		{
+			pts = newVal;
+			rot = 180.0/pts;
+		}
 	}
 
-	/**
-	 * Update method
-	 *
-	 * @param: float
-	 * @return: null
-	 */
-	void update(float ang)
+	// Sets the outer radius value
+	public void setOuterRad(float newVal)
 	{
-		if (ang > 0.0)
-			angle += ang;
+		outerRadius = min(width, height) * newVal;
+	}
+	
+	// Sets the inner radius value with an option bool 
+	// for maintaining relationship with outerradius and avoid
+	// overflow behavior
+	public void setInnerRad(float newVal, boolean relationship)
+	{
+		if (relationship)
+			// Simply to maintain a relationship and not overflow
+			innerRadius = outerRadius * newVal;
+		else
+			// Optional
+			innerRadius = min(width, height) * newVal;
+	}
 
+	// Set rotation angle
+	public void setAngle(float newVal)
+	{
+		if (newVal != angle)
+			angle = newVal;
+	}
+
+	// Set position of trianglopod
+	public void setLocation(int newX, int newY)
+	{
+		if (newX != x)
+			x = newX;
+
+		if (newY != y)
+			y = newY;
+	}
+
+
+	//////////////////////
+	// Drawing Methods //
+	//////////////////////
+	void update()
+	{
 		beginShape(TRIANGLE_STRIP);
 		for (int i = 0; i <= pts; i++)
 		{
@@ -137,40 +230,6 @@ class TriangloPod
 
 			px       = x + cos(radians(angle)) * innerRadius;
 			py       = y + sin(radians(angle)) * innerRadius;
-			
-			vertex(px, py); 
-			
-			angle    += rot;
-		}
-	 	endShape();
-	}
-
-	/**
-	 * Overload update method
-	 *
-	 * @param: float, float, float
-	 * @return: null
-	 */
-	void update(float ang, float outR, float innerR)
-	{
-		if (ang > 0.0)
-			angle += ang;
-
-		outR   = outerRadius * outR;
-		innerR = innerR;
-
-		beginShape(TRIANGLE_STRIP);
-		for (int i = 0; i <= pts; i++)
-		{
-			float px = x + cos(radians(angle)) * outR;
-			float py = y + sin(radians(angle)) * outR;
-
-			angle    += rot;
-			
-			vertex(px, py);
-
-			px       = x + cos(radians(angle)) * innerR;
-			py       = y + sin(radians(angle)) * innerR;
 			
 			vertex(px, py); 
 			
