@@ -10,6 +10,13 @@ No setup is needed. Just run the code in processing and you'll be good to go.
 
 Btw, TriangloPod: I have no idea why I came up with that name or from where...
 
+Installation
+------------
+
+Starting v0.11 I implemented ControlP5 Library. So in order to run this project you need to download and install the library.
+
+**ControlP5** : http://www.sojamo.de/libraries/controlP5/
+
 Usage
 -----
 

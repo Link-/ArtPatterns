@@ -10,9 +10,48 @@
  * 
  * @author: 	Bassem Dghaidy
  * @website: 	http://bassemdy.com
- * @version:	0.10
+ * @version:	0.11
  * @license:	...
  */
+
+
+///////////////////////////////////////
+// Non Portable Code to ProcessingJS //
+///////////////////////////////////////
+
+import controlP5.*;
+
+ControlP5 cp5;
+
+float controlOuterRadius = 0.8;						// Outer Radius Value
+float controlInnerRadius = 0.4;						// Inner Radius Value
+float controlPts         = 5.0;						// Number of points for the shape
+float controlAngle       = 0.0;						// Angle of rotation
+
+
+public void controlEvent(ControlEvent theEvent) 
+{
+  switch(theEvent.getId()) 
+  {
+    case(1): 
+	controlAngle       = (theEvent.getController().getValue());
+	break;
+		
+	case(2):  
+	controlOuterRadius = (theEvent.getController().getValue());
+	break;
+		
+	case(3):
+	controlInnerRadius = (theEvent.getController().getValue());
+	break;
+		
+	case(4):
+	controlPts         = (theEvent.getController().getValue());
+    break;
+  }
+}
+
+/// >> END
 
 /**
  * The entierty of the code is dirty and not 
@@ -53,6 +92,22 @@ void setup()
 		// middle, middle, shift angle by a certain variable, points, initial vars
 		trList.add(new TriangloPod(width/2, height/2, i*5, 4, 0.5, 0.5));
 	}
+
+
+	///////////////////////////////////////
+	// Non Portable Code to ProcessingJS //
+	///////////////////////////////////////
+	
+	cp5 = new ControlP5(this);
+
+	// Adding the control sliders
+	// name, minValue, maxValue, defaultValue, x, y, width, height
+  	cp5.addSlider("angleSlider", 0, 180, 90, 10, 10, 100, 14).setId(1);
+  	cp5.addSlider("outerRadius", 0, 1, 0.5, 10, 26, 100, 14).setId(2);
+  	cp5.addSlider("innerRadius", 0, 1, 0.5, 10, 42, 100, 14).setId(3);
+  	cp5.addSlider("points", 0, 100, 5, 10, 58, 100, 14).setId(4);
+
+  	/// >> END
 }
 
 ////////////////
@@ -83,13 +138,24 @@ void draw()
 	for (int i = 0; i < trList.size(); i++)
 	{
 		TriangloPod xP = (TriangloPod) trList.get(i);
-		xP.setAngle(tmpAngle * i / 10);
-		xP.setOuterRad(tmpOR * outerMulti);
-		xP.setInnerRad(tmpIR * innerMulti, false);
+
+		// xP.setAngle(tmpAngle * i / 10);
+		// xP.setOuterRad(tmpOR * outerMulti);
+		// xP.setInnerRad(tmpIR * innerMulti, false);
+
+		////////////////////////////
+		// Non Portable Updates //
+		////////////////////////////
+		xP.setAngle(controlAngle * (i + 1));
+		xP.setOuterRad(controlOuterRadius);
+		xP.setInnerRad(controlInnerRadius, false);
+		xP.setPoints(controlPts);
+
+		/// >> END
 
 		// Extra control
-		if (keyPoints > 0.0)
-			xP.setPoints(keyPoints);
+		// if (keyPoints > 0.0)
+			// xP.setPoints(keyPoints);
 
 		xP.update();
 	}
@@ -226,11 +292,15 @@ class TriangloPod
 
 			angle    += rot;
 			
+			// fill(255, 40);
+
 			vertex(px, py);
 
 			px       = x + cos(radians(angle)) * innerRadius;
 			py       = y + sin(radians(angle)) * innerRadius;
 			
+			// fill(0, 80);
+
 			vertex(px, py); 
 			
 			angle    += rot;
